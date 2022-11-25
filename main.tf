@@ -2,9 +2,6 @@
 resource "azurerm_resource_group" "rg" {
     location = "eastus"
     name = "tektutor-rg"
-    depends_on = [
-        random_pet.rg_name
-    ]
 }
 
 //We are creating a virtual network
