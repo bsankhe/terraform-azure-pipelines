@@ -163,7 +163,7 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
 
 resource "null_resource" "delete_ip_files_and_pem_file" {
   provisioner "local-exec" {
-    command = "rm -f key.pem ip*.txt" 
+    command = "rm -f ./key.pem ./ip*.txt" 
   }
   depends_on = [
     azurerm_resource_group.rg
@@ -181,6 +181,7 @@ resource "local_file" "private-key" {
   }
 
   depends_on = [ 
+     null_resource.delete_ip_files_and_pem_file,
      azurerm_linux_virtual_machine.my_ubuntu_vm[0],
      azurerm_linux_virtual_machine.my_ubuntu_vm[1],
      azurerm_linux_virtual_machine.my_ubuntu_vm[2]
