@@ -17,3 +17,7 @@ steps:
 - script: |
     terraform apply --auto-approve
   displayName: 'Provision 3 VMs and Install Nginx Web Server'
+
+- script: |
+    terraform destroy --auto-approve
+  displayName: 'Clean up resources'
