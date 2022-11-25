@@ -10,10 +10,6 @@ pool:
 
 steps:
 - script: |
-    terraform destroy --auto-approve
-  displayName: 'Clean up resources'
-
-- script: |
     terraform init
   displayName: 'Initialize Terrform Project'
 
