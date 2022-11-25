@@ -1,9 +1,22 @@
-- name: This playbook will install nginx web server
+- name: This playbook will install nginx, configure nginx web root folder, deploy a custom html web page
   hosts: all
   become: yes
+  vars:
+  - provisioner_tool: Terraform
+  - conf_mgr_tool: Ansible
+
   tasks:
-  - name: Install nginx web server on azure ubuntu virtual machine
+  - name: Install nginx in Ubuntu Ansible nodes
     apt: name=nginx state=latest update_cache=yes
 
-  - name: Start the nginx web server service
-    service: name=nginx state=started enabled=true
+  - name: Created custom web root folder
+    file: path=/var/html mode=0755 state=directory 
+
+  - name: Deploy custom html web page 
+    template: src=index.html.j2 dest=/var/html/index.html
+ 
+  - name: Configure nginx web root folder
+    copy: src=default dest=/etc/nginx/sites-available/default
+
+  - name: Restart nginx web server
+    service: name=nginx state=restarted

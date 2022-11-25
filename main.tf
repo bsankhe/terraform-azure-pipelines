@@ -1,9 +1,7 @@
-//Helps in generating random resource name
 resource "random_pet" "rg_name" {
    prefix = var.resource_group_name_prefix
 }
 
-//We are creating a resource group to add all the azure there to group and manage them easily
 resource "azurerm_resource_group" "rg" {
     location = var.resource_group_location
     name = random_pet.rg_name.id
@@ -12,7 +10,6 @@ resource "azurerm_resource_group" "rg" {
     ]
 }
 
-//We are creating a virtual network
 resource "azurerm_virtual_network" "my_virtual_network" {
     name = "my-virtual-net"
     address_space = ["10.0.0.0/16"]
@@ -23,7 +20,6 @@ resource "azurerm_virtual_network" "my_virtual_network" {
     ]
 }
 
-//We are creating a subnet within the virtual network
 resource "azurerm_subnet" "my_subnet" {
   name = "mySubnet"
   resource_group_name = azurerm_resource_group.rg.name
@@ -34,7 +30,6 @@ resource "azurerm_subnet" "my_subnet" {
   ]
 }
 
-//We are creating public ip address for the 3 VMs we are about to create
 resource "azurerm_public_ip" "my_public_ip" {
   count = 3
   name = "myPublicIP${count.index}"
@@ -46,7 +41,6 @@ resource "azurerm_public_ip" "my_public_ip" {
   ]
 }
 
-//Firewall - we can open up the required ports on the Virtual Machines 
 resource "azurerm_network_security_group" "my-nsg" {
   count = 3
   name = "myNetworkSecurityGroup${count.index}"
@@ -92,7 +86,6 @@ resource "azurerm_network_security_group" "my-nsg" {
   ]
 }
 
-//Creating network cards to be assigned with the virtual machines that will be created below
 resource "azurerm_network_interface" "my_nic" {
   count = 3
   name = "myNIC${count.index}"
@@ -111,7 +104,6 @@ resource "azurerm_network_interface" "my_nic" {
   ]
 }
 
-//Integrating the network firewall settings with the network card
 resource "azurerm_network_interface_security_group_association"  "nic_ngs_connector" {
   count = 3
   network_interface_id = azurerm_network_interface.my_nic[count.index].id
@@ -121,7 +113,6 @@ resource "azurerm_network_interface_security_group_association"  "nic_ngs_connec
   ]
 }
 
-//Creating key pair for login authentication using key pairs
 resource "tls_private_key" "my_ssh_key" {
     algorithm = "RSA"
     rsa_bits = 4096
@@ -130,7 +121,6 @@ resource "tls_private_key" "my_ssh_key" {
   ]
 }
 
-//Creating 3 Ubuntu azure virtual machines
 resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
   count = 3
   name = "myUbuntuVM${count.index}"
@@ -169,27 +159,27 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
   ]
 }
 
-//Storing the private key we generated. Required for ansible playbook execution
-resource "local_file" "private-key" {
-  content  = tls_private_key.my_ssh_key.private_key_openssh
-  filename = "./key.pem"
+resource "null_resource" "clean_up_local_files" {
   
-  provisioner "local-exec" {
-    command = "chmod 400 ./key.pem" 
-  }
-
-  depends_on = [ azurerm_linux_virtual_machine.my_ubuntu_vm ] 
+    provisioner "local-exec" {
+        command = "rm ./ip* && rm ./key.pem && touch ./install-nginx-playbook.yml"
+    }
+ 
 }
 
-//Storing the ip addresses of the azure virtual machine we provisioned using Terraform
-//Required for Ansible playbook execution - used in inventory
+resource "local_file" "key_pem" {
+    filename = "./key.pem"
+    content  = tls_private_key.my_ssh_key.private_key_openssh
+    file_permission = "0400"
+}
+
 resource "local_file" "ip" {
   count = 3
   content  = azurerm_linux_virtual_machine.my_ubuntu_vm[count.index].public_ip_address 
   filename = "./ip${count.index}.txt"
-  
+
   provisioner "local-exec" {
-    command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt --private-key ./key.pem install-nginx-playbook.yml" 
+    command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt install-nginx-playbook.yml"
   }
 
   depends_on = [ azurerm_linux_virtual_machine.my_ubuntu_vm ] 
