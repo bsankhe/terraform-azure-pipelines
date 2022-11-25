@@ -1,13 +1,7 @@
-resource "random_pet" "rg_name" {
-   prefix = var.resource_group_name_prefix
-}
-
+//We are creating a resource group to add all the azure there to group and manage them easily
 resource "azurerm_resource_group" "rg" {
-    location = var.resource_group_location
-    name = random_pet.rg_name.id
-    depends_on = [
-        random_pet.rg_name
-    ]
+    location = "eastus"
+    name = "tektutor-rg"
 }
 
 resource "azurerm_virtual_network" "my_virtual_network" {
@@ -167,6 +161,7 @@ resource "null_resource" "clean_up_local_files" {
  
 }
 
+<<<<<<< HEAD
 resource "local_file" "key_pem" {
     filename = "./key.pem"
     content  = tls_private_key.my_ssh_key.private_key_openssh
@@ -180,7 +175,41 @@ resource "local_file" "ip" {
 
   provisioner "local-exec" {
     command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt install-nginx-playbook.yml"
+=======
+  depends_on = [ 
+     azurerm_linux_virtual_machine.my_ubuntu_vm[0],
+     azurerm_linux_virtual_machine.my_ubuntu_vm[1],
+     azurerm_linux_virtual_machine.my_ubuntu_vm[2]
+  ] 
+}
+
+resource "local_file" "store_vm_ips_to_file_for_ansible_provisioning" {
+  count = 3
+  content  = azurerm_linux_virtual_machine.my_ubuntu_vm[count.index].public_ip_address 
+  filename = "./ip${count.index}.txt"
+  
+  depends_on = [ 
+     azurerm_linux_virtual_machine.my_ubuntu_vm[0],
+     azurerm_linux_virtual_machine.my_ubuntu_vm[1], 
+     azurerm_linux_virtual_machine.my_ubuntu_vm[2] 
+  ] 
+}
+
+    
+//Storing the ip addresses of the azure virtual machine we provisioned using Terraform
+//Required for Ansible playbook execution - used in inventory
+resource "null_resource" "ip" {
+  count = 3
+  
+  provisioner "local-exec" {
+    command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt --private-key ./key.pem install-nginx-playbook.yml -vvvv" 
+>>>>>>> 444a9c858c1bb0ff2c27733919e6164a73296255
   }
 
-  depends_on = [ azurerm_linux_virtual_machine.my_ubuntu_vm ] 
+  depends_on = [ 
+     local_file.store_vm_ips_to_file_for_ansible_provisioning,
+     azurerm_linux_virtual_machine.my_ubuntu_vm[0],
+     azurerm_linux_virtual_machine.my_ubuntu_vm[1], 
+     azurerm_linux_virtual_machine.my_ubuntu_vm[2] 
+  ] 
 }
