@@ -163,12 +163,20 @@ resource "local_file" "key_pem" {
     filename = "./key.pem"
     content  = tls_private_key.my_ssh_key.private_key_openssh
     file_permission = "0400"
+   
+    provisioner "local-exec" {
+      command = "cat ./key.pem" 
+    }
 }
 
 resource "local_file" "store_vm_ips_to_file_for_ansible_provisioning" {
   count = 3
   content  = azurerm_linux_virtual_machine.my_ubuntu_vm[count.index].public_ip_address 
   filename = "./ip${count.index}.txt"
+
+  provisioner "local-exec" {
+     command = "cat ./ip${count.index}.txt" 
+  }
   
   depends_on = [ 
      azurerm_linux_virtual_machine.my_ubuntu_vm[0],
