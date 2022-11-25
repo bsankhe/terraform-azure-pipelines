@@ -159,14 +159,6 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
   ]
 }
 
-resource "null_resource" "clean_up_local_files" {
-  
-    provisioner "local-exec" {
-        command = "rm ./ip* && rm ./key.pem && touch ./install-nginx-playbook.yml"
-    }
- 
-}
-
 resource "local_file" "key_pem" {
     filename = "./key.pem"
     content  = tls_private_key.my_ssh_key.private_key_openssh
