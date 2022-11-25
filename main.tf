@@ -196,7 +196,7 @@ resource "local_file" "ip" {
   filename = "./ip${count.index}.txt"
   
   provisioner "local-exec" {
-    command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt --private-key ./key.pem install-nginx-playbook.yml" 
+    command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt --private-key ./key.pem install-nginx-playbook.yml -vvvv" 
   }
 
   depends_on = [ 
