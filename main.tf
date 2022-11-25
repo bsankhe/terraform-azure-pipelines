@@ -161,7 +161,6 @@ resource "null_resource" "clean_up_local_files" {
  
 }
 
-<<<<<<< HEAD
 resource "local_file" "key_pem" {
     filename = "./key.pem"
     content  = tls_private_key.my_ssh_key.private_key_openssh
@@ -175,12 +174,12 @@ resource "local_file" "ip" {
 
   provisioner "local-exec" {
     command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt install-nginx-playbook.yml"
-=======
-  depends_on = [ 
+  
+    depends_on = [ 
      azurerm_linux_virtual_machine.my_ubuntu_vm[0],
      azurerm_linux_virtual_machine.my_ubuntu_vm[1],
      azurerm_linux_virtual_machine.my_ubuntu_vm[2]
-  ] 
+    ] 
 }
 
 resource "local_file" "store_vm_ips_to_file_for_ansible_provisioning" {
@@ -203,7 +202,6 @@ resource "null_resource" "ip" {
   
   provisioner "local-exec" {
     command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt --private-key ./key.pem install-nginx-playbook.yml -vvvv" 
->>>>>>> 444a9c858c1bb0ff2c27733919e6164a73296255
   }
 
   depends_on = [ 
