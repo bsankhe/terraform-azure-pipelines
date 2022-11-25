@@ -173,22 +173,6 @@ resource "local_file" "key_pem" {
     file_permission = "0400"
 }
 
-resource "local_file" "ip" {
-  count = 3
-  content  = azurerm_linux_virtual_machine.my_ubuntu_vm[count.index].public_ip_address 
-  filename = "./ip${count.index}.txt"
-
-  provisioner "local-exec" {
-    command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt install-nginx-playbook.yml"
-  
-    depends_on = [ 
-     azurerm_linux_virtual_machine.my_ubuntu_vm[0],
-     azurerm_linux_virtual_machine.my_ubuntu_vm[1],
-     azurerm_linux_virtual_machine.my_ubuntu_vm[2]
-    ] 
-  }
-}
-
 resource "local_file" "store_vm_ips_to_file_for_ansible_provisioning" {
   count = 3
   content  = azurerm_linux_virtual_machine.my_ubuntu_vm[count.index].public_ip_address 
@@ -201,7 +185,6 @@ resource "local_file" "store_vm_ips_to_file_for_ansible_provisioning" {
   ] 
 }
 
-    
 //Storing the ip addresses of the azure virtual machine we provisioned using Terraform
 //Required for Ansible playbook execution - used in inventory
 resource "null_resource" "ip" {
@@ -212,9 +195,8 @@ resource "null_resource" "ip" {
   }
 
   depends_on = [ 
-     local_file.store_vm_ips_to_file_for_ansible_provisioning,
-     azurerm_linux_virtual_machine.my_ubuntu_vm[0],
-     azurerm_linux_virtual_machine.my_ubuntu_vm[1], 
-     azurerm_linux_virtual_machine.my_ubuntu_vm[2] 
+     local_file.store_vm_ips_to_file_for_ansible_provisioning[0],
+     local_file.store_vm_ips_to_file_for_ansible_provisioning[1],
+     local_file.store_vm_ips_to_file_for_ansible_provisioning[2]
   ] 
 }
