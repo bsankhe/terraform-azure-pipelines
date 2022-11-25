@@ -161,16 +161,6 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
   ]
 }
 
-resource "null_resource" "delete_ip_files_and_pem_file" {
-  provisioner "local-exec" {
-    command = "rm -f ./key.pem ./ip*.txt" 
-  }
-  depends_on = [
-    azurerm_resource_group.rg
-  ]
-}
-   
-   
 //Storing the private key we generated. Required for ansible playbook execution
 resource "local_file" "private-key" {
   content  = tls_private_key.my_ssh_key.private_key_openssh
@@ -181,25 +171,36 @@ resource "local_file" "private-key" {
   }
 
   depends_on = [ 
-     null_resource.delete_ip_files_and_pem_file,
      azurerm_linux_virtual_machine.my_ubuntu_vm[0],
      azurerm_linux_virtual_machine.my_ubuntu_vm[1],
      azurerm_linux_virtual_machine.my_ubuntu_vm[2]
   ] 
 }
 
-//Storing the ip addresses of the azure virtual machine we provisioned using Terraform
-//Required for Ansible playbook execution - used in inventory
-resource "local_file" "ip" {
+resource "local_file" "store_vm_ips_to_file_for_ansible_provisioning" {
   count = 3
   content  = azurerm_linux_virtual_machine.my_ubuntu_vm[count.index].public_ip_address 
   filename = "./ip${count.index}.txt"
+  
+  depends_on = [ 
+     azurerm_linux_virtual_machine.my_ubuntu_vm[0],
+     azurerm_linux_virtual_machine.my_ubuntu_vm[1], 
+     azurerm_linux_virtual_machine.my_ubuntu_vm[2] 
+  ] 
+}
+
+    
+//Storing the ip addresses of the azure virtual machine we provisioned using Terraform
+//Required for Ansible playbook execution - used in inventory
+resource "null_resource" "ip" {
+  count = 3
   
   provisioner "local-exec" {
     command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt --private-key ./key.pem install-nginx-playbook.yml -vvvv" 
   }
 
   depends_on = [ 
+     local_file.store_vm_ips_to_file_for_ansible_provisioning,
      azurerm_linux_virtual_machine.my_ubuntu_vm[0],
      azurerm_linux_virtual_machine.my_ubuntu_vm[1], 
      azurerm_linux_virtual_machine.my_ubuntu_vm[2] 
