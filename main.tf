@@ -1,7 +1,13 @@
-//We are creating a resource group to add all the azure there to group and manage them easily
+resource "random_pet" "rg_name" {
+   prefix = var.resource_group_name_prefix
+}
+
 resource "azurerm_resource_group" "rg" {
-    location = "eastus"
-    name = "tektutor-rg"
+    location = var.resource_group_location
+    name = random_pet.rg_name.id
+    depends_on = [
+        random_pet.rg_name
+    ]
 }
 
 resource "azurerm_virtual_network" "my_virtual_network" {
