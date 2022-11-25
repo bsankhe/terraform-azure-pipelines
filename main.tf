@@ -1,12 +1,7 @@
-//Helps in generating random resource name
-resource "random_pet" "rg_name" {
-   prefix = var.resource_group_name_prefix
-}
-
 //We are creating a resource group to add all the azure there to group and manage them easily
 resource "azurerm_resource_group" "rg" {
-    location = var.resource_group_location
-    name = random_pet.rg_name.id
+    location = "eastus"
+    name = "tektutor-rg"
     depends_on = [
         random_pet.rg_name
     ]
@@ -169,6 +164,16 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
   ]
 }
 
+resource "null_resource" "delete_ip_files_and_pem_file" {
+  provisioner "local-exec" {
+    command = "rm key.pem ip*.txt" 
+  }
+  depends_on = [
+    azurerm_resource_group.rg
+  ]
+}
+   
+   
 //Storing the private key we generated. Required for ansible playbook execution
 resource "local_file" "private-key" {
   content  = tls_private_key.my_ssh_key.private_key_openssh
@@ -178,7 +183,11 @@ resource "local_file" "private-key" {
     command = "chmod 400 ./key.pem" 
   }
 
-  depends_on = [ azurerm_linux_virtual_machine.my_ubuntu_vm ] 
+  depends_on = [ 
+     azurerm_linux_virtual_machine.my_ubuntu_vm[0],
+     azurerm_linux_virtual_machine.my_ubuntu_vm[1],
+     azurerm_linux_virtual_machine.my_ubuntu_vm[2]
+  ] 
 }
 
 //Storing the ip addresses of the azure virtual machine we provisioned using Terraform
