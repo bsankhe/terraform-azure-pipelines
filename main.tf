@@ -180,6 +180,7 @@ resource "local_file" "ip" {
      azurerm_linux_virtual_machine.my_ubuntu_vm[1],
      azurerm_linux_virtual_machine.my_ubuntu_vm[2]
     ] 
+  }
 }
 
 resource "local_file" "store_vm_ips_to_file_for_ansible_provisioning" {
