@@ -192,5 +192,9 @@ resource "local_file" "ip" {
     command = "ansible-playbook -u azureuser -i ./ip${count.index}.txt --private-key ./key.pem install-nginx-playbook.yml" 
   }
 
-  depends_on = [ azurerm_linux_virtual_machine.my_ubuntu_vm[count.index] ] 
+  depends_on = [ 
+     azurerm_linux_virtual_machine.my_ubuntu_vm[0],
+     azurerm_linux_virtual_machine.my_ubuntu_vm[1], 
+     azurerm_linux_virtual_machine.my_ubuntu_vm[2] 
+  ] 
 }
