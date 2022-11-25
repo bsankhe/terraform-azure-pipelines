@@ -187,6 +187,11 @@ resource "local_file" "store_vm_ips_to_file_for_ansible_provisioning" {
 
 resource "time_sleep" "wait_45_seconds" {
    create_duration = "45s"  
+   depends_on = [ 
+     local_file.store_vm_ips_to_file_for_ansible_provisioning[0],
+     local_file.store_vm_ips_to_file_for_ansible_provisioning[1],
+     local_file.store_vm_ips_to_file_for_ansible_provisioning[2]
+  ]   
 }
 
 //Storing the ip addresses of the azure virtual machine we provisioned using Terraform
