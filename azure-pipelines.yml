@@ -8,11 +8,11 @@ trigger:
 pool:
   name: Default
 
+steps:
 - script: |
     terraform destroy --auto-approve
   displayName: 'Clean up resources'
 
-steps:
 - script: |
     terraform init
   displayName: 'Initialize Terrform Project'
@@ -20,4 +20,3 @@ steps:
 - script: |
     terraform apply --auto-approve
   displayName: 'Provision 3 VMs and Install Nginx Web Server'
-
