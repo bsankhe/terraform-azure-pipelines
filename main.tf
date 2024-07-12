@@ -137,8 +137,8 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
 
   source_image_reference {
     publisher = "Canonical"
-    offer = "UbuntuServer"
-    sku = "22.04-LTS"
+    offer = "ubuntu"
+    sku = "20.04"
     version = "latest"
   }
 
