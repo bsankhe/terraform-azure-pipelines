@@ -127,18 +127,18 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
   location = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   network_interface_ids = [azurerm_network_interface.my_nic[count.index].id]
-  size = "Standard_NV6ads_A10_v5"
+  size = "Standard_F2"
 
   os_disk {
     name = "myHardDisk${count.index}"
     caching = "ReadWrite"
-    storage_account_type = "Premium_LRS"
+    storage_account_type = "Standard_LRS"
   }
 
   source_image_reference {
     publisher = "Canonical"
-    offer = "ubuntu"
-    sku = "20.04"
+    offer = "0001-com-ubuntu-server-jammy"
+    sku = "22_04-lts"
     version = "latest"
   }
 
