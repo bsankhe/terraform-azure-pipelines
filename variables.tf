@@ -1,6 +1,6 @@
 variable "resource_group_location" {
   description = "Location of the resource group"
-  default = "australiaeast"
+  default = "eastus2"
 }
 
 variable "resource_group_name_prefix" {
