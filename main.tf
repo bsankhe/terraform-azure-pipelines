@@ -127,7 +127,7 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
   location = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   network_interface_ids = [azurerm_network_interface.my_nic[count.index].id]
-  size = "Standard_DS1_v2"
+  size = "Standard D2S v3"
 
   os_disk {
     name = "myHardDisk${count.index}"
