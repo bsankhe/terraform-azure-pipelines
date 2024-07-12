@@ -127,7 +127,7 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
   location = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   network_interface_ids = [azurerm_network_interface.my_nic[count.index].id]
-  size = "Standard D2S v3"
+  size = "Standard_NV6ads_A10_v5"
 
   os_disk {
     name = "myHardDisk${count.index}"
@@ -138,7 +138,7 @@ resource "azurerm_linux_virtual_machine" "my_ubuntu_vm" {
   source_image_reference {
     publisher = "Canonical"
     offer = "UbuntuServer"
-    sku = "18.04-LTS"
+    sku = "22.04-LTS"
     version = "latest"
   }
 
