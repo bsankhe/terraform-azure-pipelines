@@ -15,4 +15,6 @@ steps:
 
 - script: |
     terraform apply --auto-approve
+  env:
+    AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
   displayName: 'Provision 3 VMs and Install Nginx Web Server'
